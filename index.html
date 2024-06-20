@@ -35,6 +35,26 @@
     </header>
     <main>
       <div class="map"></div>
+      <dialog id="locDialog">
+        <form method="dialog">
+          <label for="locName">Location Name:</label>
+          <input type="text" id="locName" name="locName" required />
+          <label for="locRate">Rate (1-5):</label>
+          <input
+            type="number"
+            id="locRate"
+            name="locRate"
+            min="1"
+            max="5"
+            required
+          />
+          <input type="hidden" id="locGeo" name="locGeo" />
+          <menu>
+            <button type="submit">Save</button>
+            <button type="button" id="cancelButton">Cancel</button>
+          </menu>
+        </form>
+      </dialog>
       <div>
         <section class="locs-container">
           <section class="loc-filter">

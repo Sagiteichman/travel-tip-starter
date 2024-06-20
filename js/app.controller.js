@@ -114,25 +114,55 @@ function onSearchAddress(ev) {
 }
 
 function onAddLoc(geo) {
-  const locName = prompt('Loc name', geo.address || 'Just a place')
-  if (!locName) return
+  const dialog = document.getElementById('locDialog')
+  const locNameInput = dialog.querySelector('#locName')
+  const locRateInput = dialog.querySelector('#locRate')
+  const locGeoInput = dialog.querySelector('#locGeo')
+  const cancelButton = dialog.querySelector('#cancelButton')
 
-  const loc = {
-    name: locName,
-    rate: +prompt(`Rate (1-5)`, '3'),
-    geo,
+  locGeoInput.value = JSON.stringify(geo)
+  locNameInput.value = geo.address || 'Just a place'
+  locRateInput.value = 3
+
+  dialog.showModal()
+
+  const handleCancel = () => {
+    dialog.close()
+    cancelButton.removeEventListener('click', handleCancel)
   }
-  locService
-    .save(loc)
-    .then((savedLoc) => {
-      flashMsg(`Added Location (id: ${savedLoc.id})`)
-      utilService.updateQueryParams({ locId: savedLoc.id })
-      loadAndRenderLocs()
-    })
-    .catch((err) => {
-      console.error('OOPs:', err)
-      flashMsg('Cannot add location')
-    })
+
+  cancelButton.addEventListener('click', handleCancel)
+
+  dialog.addEventListener(
+    'close',
+    () => {
+      if (dialog.returnValue === 'Save') {
+        const locName = locNameInput.value
+        const locRate = +locRateInput.value
+
+        if (!locName) return
+
+        const loc = {
+          name: locName,
+          rate: locRate,
+          geo: JSON.parse(locGeoInput.value),
+        }
+
+        locService
+          .save(loc)
+          .then((savedLoc) => {
+            flashMsg(`Added Location (id: ${savedLoc.id})`)
+            utilService.updateQueryParams({ locId: savedLoc.id })
+            loadAndRenderLocs()
+          })
+          .catch((err) => {
+            console.error('OOPs:', err)
+            flashMsg('Cannot add location')
+          })
+      }
+    },
+    { once: true }
+  )
 }
 
 function loadAndRenderLocs() {
